@@ -1,5 +1,15 @@
 local M = {}
 
+---@alias SqlGhostyOptions
+---| 'show_hints_by_default'
+
+--- @type table<SqlGhostyOptions, any>
+local default_config = {
+	show_hints_by_default = true,
+}
+
+M.config = default_config
+
 -- Namespace for extmarks
 local ns_id = vim.api.nvim_create_namespace("sql_inlay_hints")
 
@@ -94,6 +104,8 @@ local function process_insert_node(node, bufnr)
 	return schema, table_name, columns, value_rows, values_start_pos
 end
 
+--- @param node TSNode
+--- @param bufnr number
 local function add_ghost_text_for_insert(node, bufnr)
 	local schema, table_name, columns, value_rows, _ = process_insert_node(node, bufnr)
 	if not table_name or #columns == 0 or #value_rows == 0 then
@@ -163,20 +175,28 @@ local function show_sql_inlay_hints()
 	end
 end
 
-M.setup = function()
+M.setup = function(opts)
+	M.config = vim.tbl_extend("force", default_config, opts or {})
+	local cfg = M.config
+
 	vim.g.sql_inlay_hints_enabled = vim.g.sql_inlay_hints_enabled or false
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, {
 		pattern = "*.sql",
 		callback = function()
-			show_sql_inlay_hints()
+			if cfg.show_hints_by_default then
+				show_sql_inlay_hints()
+			end
 		end,
 	})
 
 	vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
 		pattern = "*.sql",
 		callback = function()
-			show_sql_inlay_hints()
+			if cfg.show_hints_by_default then
+				-- Only show hints if the user has toggled them on
+				show_sql_inlay_hints()
+			end
 		end,
 	})
 
@@ -187,16 +207,14 @@ M.setup = function()
 			return
 		end
 
-		if vim.g.sql_inlay_hints_enabled then
+		if cfg.show_hints_by_default then
 			vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
-			vim.g.sql_inlay_hints_enabled = false
+			cfg.show_hints_by_default = false
 		else
 			show_sql_inlay_hints()
-			vim.g.sql_inlay_hints_enabled = true
+			cfg.show_hints_by_default = true
 		end
 	end, {})
 end
-
--- Return the module
 
 return M
