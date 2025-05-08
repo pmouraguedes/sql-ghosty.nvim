@@ -8,11 +8,11 @@
 
 ## Description
 
-It tries to solve the problem where you have an sql insert with many columns, and it is very hard to know to which column a value correspond. 
-It inserts hints with the column name on each value.
+Addresses the challenge of managing SQL inserts with numerous columns, where it’s difficult to map values to their corresponding columns. 
+It embeds hints with the column name alongside each value.
 
-Another approach I sometimes use, is to align the statement with a plugin like [mini.align](https://github.com/echasnovski/mini.align) and edit it in visual-block mode. 
-These two approaches are not mutually exclusive, I find them both useful, and choose which one to use depending on the situation.
+Another approach I sometimes use, is to align the statement with a plugin like mini.align and edit it in visual-block mode. 
+These approaches are complementary, each valuable in different scenarios, allowing me to choose the best method based on the context.
 
 ## Features
 
