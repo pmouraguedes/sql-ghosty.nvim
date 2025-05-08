@@ -21,7 +21,6 @@ local function get_node_type(node)
 	return nil
 end
 
--- Function to extract table name, columns, and values from an insert node
 --- @param node TSNode insert node to process
 --- @param bufnr number buffer number
 --- @return string? schema
@@ -45,8 +44,6 @@ local function process_insert_node(node, bufnr)
 		end
 
 		if child_type == "object_reference" then
-			-- Table name is in the identifier child
-
 			local schema_node = child:field("schema")[1]
 			if schema_node then
 				schema = vim.treesitter.get_node_text(schema_node, bufnr) or ""
@@ -55,13 +52,6 @@ local function process_insert_node(node, bufnr)
 			if table_node then
 				table_name = vim.treesitter.get_node_text(table_node, bufnr) or ""
 			end
-
-			-- for subchild in child:iter_children() do
-			-- 	if get_node_type(subchild) == "identifier" then
-			-- 		table_name = vim.treesitter.get_node_text(subchild, bufnr) or ""
-			-- 		break
-			-- 	end
-			-- end
 		elseif child_type == "list" then
 			-- First list is columns, second is values
 			if #columns == 0 then
@@ -109,37 +99,32 @@ end
 local function add_ghost_text_for_insert(node, bufnr)
 	local schema, table_name, columns, value_rows, _ = process_insert_node(node, bufnr)
 	if not table_name or #columns == 0 or #value_rows == 0 then
-		vim.notify(
-			"Incomplete insert node: "
-				.. vim.inspect({ schema, table_name = table_name, columns = #columns, values = #value_rows }),
-			vim.log.levels.DEBUG
-		)
+		-- vim.notify(
+		-- 	"Incomplete insert node: "
+		-- 		.. vim.inspect({ schema = schema, table_name = table_name, columns = #columns, values = #value_rows }),
+		-- 	vim.log.levels.TRACE
+		-- )
 		return
 	end
 
-	-- Get column names (from DB or parsed columns)
-	-- local db_columns = get_table_columns(table_name) or columns
-	local db_columns = columns
-	if #db_columns == 0 then
+	if #columns == 0 then
 		return
 	end
 
 	-- Add ghost text for each value
 	for _, row in ipairs(value_rows) do
 		for i, value in ipairs(row) do
-			if i > #db_columns then
+			if i > #columns then
 				break
 			end
-			-- print("Adding ghost text for value: ", value.text, " at row: ", value.row, " col: ", value.col)
 			vim.api.nvim_buf_set_extmark(bufnr, ns_id, value.row, value.col, {
-				virt_text = { { db_columns[i] .. ": ", "DiagnosticHint" } },
+				virt_text = { { columns[i] .. ": ", "DiagnosticHint" } },
 				virt_text_pos = "inline",
 			})
 		end
 	end
 end
 
--- Function to iterate statement nodes and find insert nodes
 local function show_sql_inlay_hints()
 	local bufnr = vim.api.nvim_get_current_buf()
 	local ok, parser = pcall(vim.treesitter.get_parser, bufnr, "sql")
@@ -179,8 +164,6 @@ M.setup = function(opts)
 	M.config = vim.tbl_extend("force", default_config, opts or {})
 	local cfg = M.config
 
-	vim.g.sql_inlay_hints_enabled = vim.g.sql_inlay_hints_enabled or false
-
 	vim.api.nvim_create_autocmd({ "BufEnter" }, {
 		pattern = "*.sql",
 		callback = function()
@@ -194,7 +177,6 @@ M.setup = function(opts)
 		pattern = "*.sql",
 		callback = function()
 			if cfg.show_hints_by_default then
-				-- Only show hints if the user has toggled them on
 				show_sql_inlay_hints()
 			end
 		end,
