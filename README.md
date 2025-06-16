@@ -1,6 +1,6 @@
 # sql-ghosty.nvim
 
-`sql-ghosty.nvim` adds ghost text inlay hints to your SQL insert statements. 
+`sql-ghosty.nvim` adds ghost text inlay hints to your SQL insert statements.
 
 ## Example
 
@@ -8,10 +8,10 @@
 
 ## Description
 
-Addresses the challenge of managing SQL inserts with numerous columns, where it’s difficult to map values to their corresponding columns. 
+Addresses the challenge of managing SQL inserts with numerous columns, where it’s difficult to map values to their corresponding columns.
 It embeds hints with the column name alongside each value.
 
-Another approach I sometimes use, is to align the statement with a plugin like mini.align and edit it in visual-block mode. 
+Another approach I sometimes use, is to align the statement with a plugin like mini.align and edit it in visual-block mode.
 These approaches are complementary, each valuable in different scenarios, allowing me to choose the best method based on the context.
 
 ## Features
@@ -32,7 +32,7 @@ These approaches are complementary, each valuable in different scenarios, allowi
   },
   opts = {},
 }
-```    
+```
 
 ## Configuration
 
@@ -42,6 +42,7 @@ These approaches are complementary, each valuable in different scenarios, allowi
 {
     -- if set to false the user needs to enable hints manually with :SqlInlayHintsToggle
     show_hints_by_default = true,
+    highlight_group = "DiagnosticHint",
 }
 ```
 

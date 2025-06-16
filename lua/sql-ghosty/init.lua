@@ -6,6 +6,7 @@ local M = {}
 --- @type table<SqlGhostyOptions, any>
 local default_config = {
 	show_hints_by_default = true,
+	highlight_group = "DiagnosticHint",
 }
 
 M.config = default_config
@@ -118,7 +119,7 @@ local function add_ghost_text_for_insert(node, bufnr)
 				break
 			end
 			vim.api.nvim_buf_set_extmark(bufnr, ns_id, value.row, value.col, {
-				virt_text = { { columns[i] .. ": ", "DiagnosticHint" } },
+				virt_text = { { columns[i] .. ": ", M.config.highlight_group } },
 				virt_text_pos = "inline",
 			})
 		end
