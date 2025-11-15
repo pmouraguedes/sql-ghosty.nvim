@@ -73,7 +73,15 @@ local function process_insert_node(node, bufnr)
 				-- Values list (one row)
 				local row_values = {}
 				for val_node in child:iter_children() do
-					if get_node_type(val_node) == "literal" then
+					if get_node_type(val_node) == "literal" or
+					   get_node_type(val_node) == "invocation" or
+					   get_node_type(val_node) == "field" or
+					   get_node_type(val_node) == "case" or
+					   get_node_type(val_node) == "subquery" or
+					   get_node_type(val_node) == "cast" or
+					   get_node_type(val_node) == "binary_expression" or
+					   get_node_type(val_node) == "array" or
+					   get_node_type(val_node) == "parameter" then
 						local val_text = vim.treesitter.get_node_text(val_node, bufnr)
 						local start_row, start_col = val_node:start()
 						if val_text and start_row and start_col then
